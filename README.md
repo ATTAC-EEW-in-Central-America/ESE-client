@@ -42,7 +42,7 @@ The [documentation](https://docs.oasis-open.org/emergency/cap/v1.2/pr03/CAP-v1.2
 In the project *"Alerta Temprana de Terremotos de Centroamérica"* (ATTAC) there is a dissemination system that receives the CAP1.2 XML message through ActiveMQ: this is the Digital TV Channel through an interface called *eews2ewbs*. 
 One example of this XML file containing information about an earthquake, in both Spanish and English, is below:
 ```xml
-   <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
   <identifier>marn2023evgi</identifier>
   <sender>MARN</sender>
   <sent>2023-03-10T13:12:21.325421Z</sent>
@@ -137,7 +137,7 @@ One example of this XML file containing information about an earthquake, in both
 A heartbeat is sent from the server side each 5 seconds to notify the clients this is alive. It is a XML format message. An example is below:
 
 ```xml
-	<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <hb originator="vssc3" sender="vssc3" xmlns="http://heartbeat.reakteu.org" timestamp="2023-03-10T20:19:02.140984Z"/>
 ```
 It contains the system that originates the heartbeat and the sender. 
