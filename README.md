@@ -140,4 +140,4 @@ A heartbeat is sent from the server side each 5 seconds to notify the clients th
 <?xml version='1.0' encoding='UTF-8'?>
 <hb originator="vssc3" sender="vssc3" xmlns="http://heartbeat.reakteu.org" timestamp="2023-03-10T20:19:02.140984Z"/>
 ```
-It contains the system that originates the heartbeat and the sender. 
+It contains the system that originates the heartbeat and the sender as well as the date and time in UTC in ISO 8601 format.
