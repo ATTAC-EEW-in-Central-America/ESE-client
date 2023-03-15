@@ -8,6 +8,10 @@ Created on Mar 2, 2023
 import time
 import stomp
 from useractions import respond_heartbeat, respond
+import datetime
+import os, sys
+import lxml.etree as ET
+from io import BytesIO
 
 def connect_and_subscribe(conn):
     conn.connect(conn.args.user, conn.args.password, wait=True)
@@ -28,6 +32,8 @@ class MyListener(stomp.ConnectionListener):
         
         if "<hb " in frame.body:
             respond_heartbeat(frame.body)
+            if self.conn.args.hbback:
+                self.send_hbback()
         else:
             respond(frame.body)
 
@@ -42,7 +48,25 @@ class MyListener(stomp.ConnectionListener):
         print('disconnected')
         if not self.stop:
             connect_and_subscribe(self.conn)
-
+    
+    def send_hbback(self):
+        dt = datetime.datetime.utcnow()
+        root = ET.Element('hb')
+        root.set('originator', 'munigt')
+        root.set('sender', 'munigt')
+        now = dt.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        root.set('xmlns', 'http://heartbeat.reakteu.org')
+        root.set('timestamp', now)
+        tree = ET.ElementTree(root)
+        f = BytesIO()
+        tree.write(f, encoding="UTF-8", xml_declaration=True, method='xml')
+        msg = f.getvalue()
+        try:
+            self.conn.send(self.conn.args.hbtopic, msg)
+        except Exception as e:
+            print("ActiveMQ connection lost. Heartbeat was not sent.")
+            print(str(e))
+            
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -56,10 +80,22 @@ if __name__ == '__main__':
     closing the connection after the first received message.", action='store_true')
     parser.add_argument("-f", "--file", help="input/output file (optional)", type=str)
     parser.add_argument("-i", "--interval", help="interval (s) to send heartbeat (optional)", type=int)
-    parser.add_argument("--nohb", help="When in 'receiver' mode ignore heartbeat messages.",
+    parser.add_argument("-nohb", help="When in 'receiver' mode ignore heartbeat messages.",
                         action="store_true")
+    parser.add_argument("-hbback", help="When a heartbeat is received, then a hb is sent back to activeMQ broker",
+                        action="store_true")
+    parser.add_argument("-hbtopic", help="The heartbeat back topic. It must be in another topic different than -t option",
+                        type=str )
     args = parser.parse_args()
-
+    
+    if args.hbback:
+        if args.hbtopic == None:
+            print("Error: hbtopic must be provided when -hbback is enabled.")
+            sys.exit(-1)
+        if args.topic == args.hbtopic:
+             print("Error: Topic -t and Heartbeat back topic -hbtopic must be different. Exiting....")
+             sys.exit(-1)
+        
     conn = stomp.Connection([(args.host, args.port)])
     conn.set_listener('', MyListener(conn))
     conn.args = args
