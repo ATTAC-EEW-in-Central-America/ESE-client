@@ -90,10 +90,10 @@ if __name__ == '__main__':
     
     if args.hbback:
         if args.hbtopic == None:
-            print("Error: hbtopic must be provided when -hbback is enabled.")
-            sys.exit(-1)
+             print("Error: hbtopic must be provided when --hbback is enabled.")
+             exit(-1)
         if args.topic == args.hbtopic:
-             print("Error: Topic -t and Heartbeat back topic -hbtopic must be different. Exiting....")
+             print("Error: Topic -t and Heartbeat back topic --hbtopic must be different. Exiting....")
              exit(-1)
         
     conn = stomp.Connection([(args.host, args.port)])
