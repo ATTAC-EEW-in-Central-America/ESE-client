@@ -8,8 +8,8 @@ Created on Mar 2, 2023
 import time
 import stomp
 from useractions import respond_heartbeat, respond
-import datetime
-import os, sys
+from datetime import datetime
+from sys import exit
 import lxml.etree as ET
 from io import BytesIO
 
@@ -50,7 +50,7 @@ class MyListener(stomp.ConnectionListener):
             connect_and_subscribe(self.conn)
     
     def send_hbback(self):
-        dt = datetime.datetime.utcnow()
+        dt = datetime.utcnow()
         root = ET.Element('hb')
         root.set('originator', 'munigt')
         root.set('sender', 'munigt')
@@ -80,11 +80,11 @@ if __name__ == '__main__':
     closing the connection after the first received message.", action='store_true')
     parser.add_argument("-f", "--file", help="input/output file (optional)", type=str)
     parser.add_argument("-i", "--interval", help="interval (s) to send heartbeat (optional)", type=int)
-    parser.add_argument("-nohb", help="When in 'receiver' mode ignore heartbeat messages.",
+    parser.add_argument("--nohb", help="When in 'receiver' mode ignore heartbeat messages.",
                         action="store_true")
-    parser.add_argument("-hbback", help="When a heartbeat is received, then a hb is sent back to activeMQ broker",
+    parser.add_argument("--hbback", help="When a heartbeat is received, then a hb is sent back to activeMQ broker",
                         action="store_true")
-    parser.add_argument("-hbtopic", help="The heartbeat back topic. It must be in another topic different than -t option",
+    parser.add_argument("--hbtopic", help="The heartbeat back topic. It must be in another topic different than -t option",
                         type=str )
     args = parser.parse_args()
     
@@ -94,7 +94,7 @@ if __name__ == '__main__':
             sys.exit(-1)
         if args.topic == args.hbtopic:
              print("Error: Topic -t and Heartbeat back topic -hbtopic must be different. Exiting....")
-             sys.exit(-1)
+             exit(-1)
         
     conn = stomp.Connection([(args.host, args.port)])
     conn.set_listener('', MyListener(conn))
